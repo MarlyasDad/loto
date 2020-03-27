@@ -38,7 +38,7 @@ class Card:
         self.remained = 15
         self.fill_slots()
 
-    def fill_slots(self):
+    def fill_slots(self) -> None:
         # Набираем 15 уникальных номеров бочонков
         card_numbers: list = []
         while len(card_numbers) < 15:
@@ -46,7 +46,7 @@ class Card:
             if new_number in card_numbers:
                 continue
             card_numbers.append(new_number)
-
+        # Заполняем строки по очереди
         for line in range(3):
             line_idx = 5 * line
             # Получаем следующие 5 номеров и сортируем их
@@ -114,12 +114,12 @@ class InfoPrinter:
     def __init__(self, players: List[Player]):
         self.players = players
 
-    def print_all_cards(self):
+    def print_all_cards(self) -> None:
         for player in self.players:
             print(f'Игрок: {player.name}')
             self.print_card(player.card)
 
-    def print_card(self, card: Card):
+    def print_card(self, card: Card) -> None:
         print('--------------------------')
         for i in range(27):
             number = card.slots.get(i)
@@ -133,7 +133,7 @@ class InfoPrinter:
         print('--------------------------')
 
     @staticmethod
-    def pprint_number(number: int, is_used: bool):
+    def pprint_number(number: int, is_used: bool) -> None:
         if not is_used:
             slot_end = ' '
             if number < 10:
@@ -151,24 +151,28 @@ class LotoGame:
 
     def __init__(self, computers: int, humans: int):
         self.players = list()
-        self.create_players(int(computers), humans)
         self.printer = InfoPrinter(self.players)
         self.bag = Bag()
         self.play = True
+        self.computers = computers
+        self.humans = humans
 
-    def create_players(self, computers: int, humans: int):
-        if computers > 0:
-            for computer in range(computers):
+    def __str__(self):
+        return f'Game main class'
+
+    def create_players(self) -> None:
+        if self.computers > 0:
+            for computer in range(self.computers):
                 computer_name = f'Computer {computer + 1}'
                 self.players.append(Player(computer_name, 'computer'))
-                print(f'Искуственный интеллект {computer_name} создан')
-        if humans > 0:
-            for human in range(humans):
-                name = input(f'Введите имя живого игрока {human + 1}: ')
+        if self.humans > 0:
+            for human in range(self.humans):
+                name = input(f'Введите имя игрока {human + 1}: ').strip()
                 self.players.append(Player(name, 'human'))
 
     def run(self) -> None:
         print('Добро пожаловать в игру Лото')
+        self.create_players()
         print('В этой игре участвуют: \n')
         self.printer.print_all_cards()
         print('Будьте осторожны, компьютер никогда не ошибается!\n')
@@ -179,7 +183,7 @@ class LotoGame:
             print(f'Выпал бочонок № {barrel}')
             self.step(barrel)
 
-    def step(self, barrel: int):
+    def step(self, barrel: int) -> None:
         # Делаем ходы по очереди
         for player in self.players:
             print(f'Ход игрока: {player.name}')
@@ -187,7 +191,7 @@ class LotoGame:
                 player.auto_step(barrel)
             else:
                 self.printer.print_card(player.card)
-                user_choice = input(f'Зачеркнуть цифру {barrel}? Y/N: ').lower()
+                user_choice = input(f'Зачеркнуть {barrel}? Y/N: ').lower()
                 loss = player.check_step(user_choice, barrel)
                 if loss:
                     print(f'Игрок {player.name} выбывает из игры!')
@@ -199,8 +203,3 @@ class LotoGame:
                 self.play = False
                 print(f'Поздравляем игрока {player.name} с ПОБЕДОЙ!!!')
                 break
-
-
-if __name__ == '__main__':
-    game = LotoGame(1, 1)
-    game.run()
