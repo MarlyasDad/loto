@@ -29,38 +29,48 @@
 ## Для запуска в виртуальном окружении используйте:
 * Pipenv
 
-## Установка с помощью setup.py:
-```bash
-$ cd "Path to setup.py"
-$ python3 setup.py install
-```
-
-## Установка из пакета:
+## Установка игры из пакета:
 ```bash
 $ cd "Path to <package_name.whl>"
 $ python3 -m pip install <package_name.whl>
 ```
 
+## Запуск после установки:
+```bash
+$ lotogame [-c <value: int> -h <value: int>]
+```
+
+или через собственный скрипт example.py:
+
+```bash
+$ cd "Path to example.py"
+$ python3 example.py [-c <value: int> -h <value: int>]
+```
+
 ## Пример скрипта example.py:
 ```python
-from loto.core import LotoGame
+import sys
+from loto.core import LotoGame, Config
 
 if __name__ == '__main__':
-    computers_count = 2
-    humans_count = 1
-
-    game = LotoGame(computers_count, humans_count)
+    config = Config(sys.argv)
+    # Or enter the parameters manually
+    # config.computers = 2
+    # config.humans = 2
+    game = LotoGame(config)
     game.run()
 ```
 
-## Запуск через консоль:
+## Если параметры не указаны, то Вам будет предложено ввести их с клавиатуры:
 ```bash
-$ cd "Path to example.py"
-$ python3 example.py
+$ lotogame example.py
+$ Введите количество компьютеров: 2
+$ Введите количество людей: 1
 ```
 
 ## Начало игры:
 ```bash
+$ python3 example.py -c 2 -h 1
 $ Добро пожаловать в игру Лото
 $ Введите имя игрока 1: Вася
 $ В этой игре участвуют: 
@@ -85,7 +95,7 @@ $       9     51    70 71 84
 $ --------------------------
 $ Будьте осторожны, компьютер никогда не ошибается!
 $ 
-$ Нажмите любую клавишу для начала игры: 
+$ Нажмите Enter для начала игры: 
 ```
 
 ## Пример хода:
@@ -110,16 +120,6 @@ $ 15 18 32             52 81
 $       9     51    70 71 84 
 $ --------------------------
 $ Зачеркнуть 77? Y/N: N
-```
-
-## Чтобы создать пакет, дополнительно требуется:
-* setuptools
-* wheel
-
-## Создать пакет:
-```bash
-$ cd "Path to setup.py"
-$ python3 setup.py bdist_wheel
 ```
 
 ## Дополнительная информация
