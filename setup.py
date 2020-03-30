@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='loto',
-    version='0.1',
+    version='0.2',
     packages=['loto'],
     include_package_data=True,
     license='GNU General Public License v3.0',
@@ -20,9 +20,9 @@ setup(
     author_email='yudaev.alex@gmail.com',
     keywords=['game', 'lotto', 'loto', 'console'],
     classifiers=[],
-    # entry_points={
-    #     'console_scripts': [
-    #         'loto = loto.main:main',
-    #     ]
-    # },
+    entry_points={
+        'console_scripts': [
+            'lotogame = loto.main:main',
+        ]
+    },
 )
