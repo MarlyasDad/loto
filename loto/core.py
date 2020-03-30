@@ -1,5 +1,61 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from random import randint, choice
+
+
+class Config:
+    computers: int
+    humans: int
+
+    def __init__(self, argv: Optional[list] = None) -> None:
+        if not argv:
+            argv = []
+        self.computers = 0
+        self.humans = 0
+        try:
+            self.init_input_args(argv)
+        except ValueError:
+            print('Ошибка ввода! Запустите игру заново.')
+            exit()
+
+    def init_input_args(self, argv: list) -> None:
+        """
+        -c <count: int>, -h <count: int>
+        """
+        for key, arg in enumerate(argv):
+            if len(argv) >= key + 2:
+                value = argv[key + 1]
+                self.check_computers(arg, value)
+                self.check_humans(arg, value)
+        if self.humans == 0 and self.computers == 0:
+            self.initialize_from_keyboard()
+
+    def check_computers(self, arg: str, value: str):
+        if arg == '-c':
+            if not value.startswith('-'):
+                try:
+                    self.computers = int(value)
+                except ValueError:
+                    raise
+
+    def check_humans(self, arg: str, value: str):
+        if arg == '-h':
+            if not value.startswith('-'):
+                try:
+                    self.humans = int(value)
+                except ValueError:
+                    raise
+
+    def initialize_from_keyboard(self) -> None:
+        try:
+            computers = int(input('Введите количество компьютеров: '))
+            humans = int(input('Введите количество людей: '))
+        except ValueError:
+            raise
+        else:
+            if computers > 0:
+                self.computers = computers
+            if humans > 0:
+                self.humans = humans
 
 
 class NumberInfo:
@@ -77,15 +133,14 @@ class Card:
 
 class Player:
     id: str
-    type: str
     card: Card
     name: str
+    type: str
 
-    def __init__(self, name: str, player_type: str):
+    def __init__(self, name: str):
         self.card = Card()
         self.win = False
         self.name = name
-        self.type = player_type
 
     def auto_step(self, number: int) -> bool:
         if number in self.card.slots.values():
@@ -105,13 +160,27 @@ class Player:
         elif user_choice == 'n' and not success:
             return False
         else:
-            return True
+            return not success
+
+
+class Computer(Player):
+
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.type = 'Computer'
+
+
+class Human(Player):
+
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.type = 'Human'
 
 
 class InfoPrinter:
-    players: List[Player]
+    players: List[Union[Computer, Human]]
 
-    def __init__(self, players: List[Player]):
+    def __init__(self, players: List[Union[Computer, Human]]):
         self.players = players
 
     def print_all_cards(self) -> None:
@@ -145,30 +214,29 @@ class InfoPrinter:
 
 class LotoGame:
     printer: InfoPrinter
-    players: List[Player]
+    players: List[Union[Computer, Human]]
     bag: Bag
     play: bool
 
-    def __init__(self, computers: int, humans: int):
+    def __init__(self, config: Config):
         self.players = list()
         self.printer = InfoPrinter(self.players)
         self.bag = Bag()
         self.play = True
-        self.computers = computers
-        self.humans = humans
+        self.config = config
 
     def __str__(self):
         return f'Game main class'
 
     def create_players(self) -> None:
-        if self.computers > 0:
-            for computer in range(self.computers):
+        if self.config.computers > 0:
+            for computer in range(self.config.computers):
                 computer_name = f'Computer {computer + 1}'
-                self.players.append(Player(computer_name, 'computer'))
-        if self.humans > 0:
-            for human in range(self.humans):
+                self.players.append(Computer(computer_name))
+        if self.config.humans > 0:
+            for human in range(self.config.humans):
                 name = input(f'Введите имя игрока {human + 1}: ').strip()
-                self.players.append(Player(name, 'human'))
+                self.players.append(Human(name))
 
     def run(self) -> None:
         print('Добро пожаловать в игру Лото')
@@ -176,7 +244,7 @@ class LotoGame:
         print('В этой игре участвуют: \n')
         self.printer.print_all_cards()
         print('Будьте осторожны, компьютер никогда не ошибается!\n')
-        input('Нажмите любую клавишу для начала игры: ')
+        input('Нажмите Enter для начала игры: ')
         while self.play:
             # Достаём бочонок из мешка
             barrel = self.bag.get_barrel()
@@ -187,7 +255,7 @@ class LotoGame:
         # Делаем ходы по очереди
         for player in self.players:
             print(f'Ход игрока: {player.name}')
-            if player.type == 'computer':
+            if isinstance(player, Computer):
                 player.auto_step(barrel)
             else:
                 self.printer.print_card(player.card)
