@@ -12,50 +12,57 @@ class Config:
         self.computers = 0
         self.humans = 0
         try:
-            self.init_input_args(argv)
-        except ValueError:
-            print('Ошибка ввода! Запустите игру заново.')
+            self.init_parameters(argv)
+        except ValueError as ex_info:
+            print(str(ex_info))
             exit()
 
-    def init_input_args(self, argv: list) -> None:
+    def init_parameters(self, argv: list) -> None:
         """
         -c <count: int>, -h <count: int>
         """
+        try:
+            self.computers, self.humans = self.init_from_argv(argv)
+            if self.computers == 0 and self.humans == 0:
+                self.computers, self.humans = self.init_from_keyboard()
+        except ValueError:
+            ValueError('Ошибка параметров! Запустите игру заново.')
+
+    def init_from_argv(self, argv) -> tuple:
+        computers, humans = 0, 0
         for key, arg in enumerate(argv):
             if len(argv) >= key + 2:
                 value = argv[key + 1]
-                self.check_computers(arg, value)
-                self.check_humans(arg, value)
-        if self.humans == 0 and self.computers == 0:
-            self.initialize_from_keyboard()
+                parsed_computers = self.check_computers(arg, value)
+                if parsed_computers:
+                    computers = parsed_computers
+                parsed_humans = self.check_humans(arg, value)
+                if parsed_humans:
+                    humans = parsed_humans
+        return computers, humans
 
-    def check_computers(self, arg: str, value: str):
+    @staticmethod
+    def init_from_keyboard() -> tuple:
+        computers, humans = 0, 0
+        input_computers = int(input('Введите количество компьютеров: '))
+        input_humans = int(input('Введите количество людей: '))
+        if input_computers > 0:
+            computers = input_computers
+        if input_humans > 0:
+            humans = input_humans
+        return computers, humans
+
+    @staticmethod
+    def check_computers(arg: str, value: str) -> Optional[int]:
         if arg == '-c':
             if not value.startswith('-'):
-                try:
-                    self.computers = int(value)
-                except ValueError:
-                    raise
+                return int(value)
 
-    def check_humans(self, arg: str, value: str):
+    @staticmethod
+    def check_humans(arg: str, value: str) -> Optional[int]:
         if arg == '-h':
             if not value.startswith('-'):
-                try:
-                    self.humans = int(value)
-                except ValueError:
-                    raise
-
-    def initialize_from_keyboard(self) -> None:
-        try:
-            computers = int(input('Введите количество компьютеров: '))
-            humans = int(input('Введите количество людей: '))
-        except ValueError:
-            raise
-        else:
-            if computers > 0:
-                self.computers = computers
-            if humans > 0:
-                self.humans = humans
+                return int(value)
 
 
 class NumberInfo:
@@ -132,7 +139,6 @@ class Card:
 
 
 class Player:
-    id: str
     card: Card
     name: str
     type: str
