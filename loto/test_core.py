@@ -7,11 +7,26 @@ from loto.core import Config, Bag, Card, Player, NumberInfo
 class TestConfig:
     # TEST 1 Config.init_parameters()
     @pytest.mark.parametrize('argv, answers', [
-        (['-c', '2', '-h', '1'], {'c': 2, 'h': 1}),
-        (['-c', '0', '-h', '3'], {'c': 0, 'h': 3}),
-        (['-c', '1'], {'c': 1}),
-        (['-h', '1'], {'h': 1}),
-        (['-h', '-c', '1'], {'h': 0, 'c': 1}),
+        pytest.param(
+            ['-c', '2', '-h', '1'], {'c': 2, 'h': 1},
+            id="complete params 1",
+        ),
+        pytest.param(
+            ['-c', '0', '-h', '3'], {'c': 0, 'h': 3},
+            id="complete params 2",
+        ),
+        pytest.param(
+            ['-c', '1'], {'c': 1},
+            id="incomplete params 1",
+        ),
+        pytest.param(
+            ['-h', '1'], {'h': 1},
+            id="incomplete params 2",
+        ),
+        pytest.param(
+            ['-h', '-c', '1'], {'h': 0, 'c': 1},
+            id="incomplete params 3",
+        ),
     ])
     def test_init_parameters(self, argv, answers):
         # Create class with parameters
@@ -23,8 +38,14 @@ class TestConfig:
 
     # TEST 2 Config.init_from_argv(argv)
     @pytest.mark.parametrize('argv', [
-        ['-c', 'qwerty', '-h', '1'],
-        ['-c', '-h', 'qwerty']
+        pytest.param(
+            ['-c', 'qwerty', '-h', '1'],
+            id="incorrect complete params 1",
+        ),
+        pytest.param(
+            ['-c', '-h', 'qwerty'],
+            id="incorrect incomplete params",
+        ),
     ])
     def test_init_from_argv_exceptions(self, argv):
         config = Config(['-c', '1', '-h', '1'])
