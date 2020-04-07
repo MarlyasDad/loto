@@ -1,4 +1,3 @@
-# from unittest import TestCase
 import pytest
 
 from loto.core import Config, Bag, Card, Player, NumberInfo
@@ -40,7 +39,7 @@ class TestConfig:
     @pytest.mark.parametrize('argv', [
         pytest.param(
             ['-c', 'qwerty', '-h', '1'],
-            id="incorrect complete params 1",
+            id="incorrect complete params",
         ),
         pytest.param(
             ['-c', '-h', 'qwerty'],
